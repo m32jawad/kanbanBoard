@@ -58,9 +58,12 @@ textarea {
 }
 
 .column-list {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  display: flex;
+  flex-wrap: nowrap;
   gap: 20px;
+  overflow-x: auto;
+  padding-bottom: 8px;
+  align-items: flex-start;
 }
 
 .column {
@@ -72,8 +75,21 @@ textarea {
   flex-direction: column;
   gap: 14px;
   min-height: 220px;
+  width: 300px;
+  flex-shrink: 0;
   box-shadow: 0 18px 38px rgba(0, 0, 0, 0.35);
   backdrop-filter: blur(20px);
+  cursor: grab;
+  transition: opacity 0.15s, box-shadow 0.15s;
+}
+
+.column:active {
+  cursor: grabbing;
+}
+
+.column.column-drag-over {
+  box-shadow: 0 0 0 2px rgba(91, 119, 255, 0.7), 0 18px 38px rgba(0, 0, 0, 0.35);
+  opacity: 0.85;
 }
 
 .column.add-column {
@@ -86,6 +102,20 @@ textarea {
   display: flex;
   flex-direction: column;
   gap: 12px;
+}
+
+.column-drag-handle {
+  font-size: 16px;
+  color: rgba(255, 255, 255, 0.25);
+  cursor: grab;
+  text-align: center;
+  letter-spacing: 2px;
+  line-height: 1;
+  user-select: none;
+}
+
+.column-drag-handle:hover {
+  color: rgba(255, 255, 255, 0.55);
 }
 
 .column-title {
@@ -307,6 +337,153 @@ textarea {
   font-size: 11px;
   border-radius: 8px;
   background: rgba(0, 0, 0, 0.6) !important;
+}
+
+/* Thumbnail grid */
+.thumb-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 4px;
+}
+
+.thumb-tile {
+  position: relative;
+  width: 56px;
+  height: 56px;
+  flex-shrink: 0;
+}
+
+.thumb-btn {
+  width: 100%;
+  height: 100%;
+  padding: 0;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 10px;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.04);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: border-color 0.15s, transform 0.1s;
+}
+
+.thumb-btn:hover {
+  border-color: rgba(91, 119, 255, 0.7);
+  transform: scale(1.06);
+}
+
+.thumb-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.thumb-icon {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.thumb-pdf {
+  background: rgba(230, 50, 50, 0.15);
+  color: #e05050;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+
+.thumb-remove {
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  width: 18px;
+  height: 18px;
+  padding: 0;
+  font-size: 9px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: rgba(20, 22, 30, 0.95);
+  color: #aab1bf;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+  opacity: 0;
+  transition: opacity 0.15s;
+}
+
+.thumb-tile:hover .thumb-remove {
+  opacity: 1;
+}
+
+/* Lightbox */
+.lightbox-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.88);
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  z-index: 40;
+}
+
+.lightbox-content {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  max-width: min(900px, 100%);
+  max-height: calc(100vh - 48px);
+}
+
+.lightbox-close {
+  position: absolute;
+  top: -12px;
+  right: -12px;
+  z-index: 10;
+  background: rgba(20, 22, 30, 0.95) !important;
+  border-radius: 999px !important;
+  width: 34px;
+  height: 34px;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.lightbox-img {
+  max-width: 100%;
+  max-height: calc(100vh - 140px);
+  object-fit: contain;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  display: block;
+}
+
+.lightbox-actions {
+  display: flex;
+  gap: 12px;
+}
+
+/* Field hint */
+.field-hint {
+  font-size: 11px;
+  color: #6b7480;
+  font-weight: 400;
+}
+
+/* Importance cycle button on card */
+.importance-cycle-btn {
+  font-size: 12px;
+  padding: 5px 10px;
+  transition: color 0.2s, border-color 0.2s;
 }
 
 .card-pills {
