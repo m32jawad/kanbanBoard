@@ -3,6 +3,12 @@ import Card from "./Card.jsx";
 
 export default function Column({
   column,
+  columnIndex,
+  isDragOver,
+  onColumnDragStart,
+  onColumnDragOver,
+  onColumnDrop,
+  onColumnDragEnd,
   onUpdateColumn,
   onDeleteColumn,
   onAddCard,
@@ -13,35 +19,22 @@ export default function Column({
 }) {
   const [isEditing, setIsEditing] = useState(false);
   const [draftTitle, setDraftTitle] = useState(column.title);
-  const [isAddingCard, setIsAddingCard] = useState(false);
-  const [cardTitle, setCardTitle] = useState("");
 
   const submitTitle = (event) => {
     event.preventDefault();
     const trimmed = draftTitle.trim();
-    if (!trimmed) {
-      return;
-    }
+    if (!trimmed) return;
     onUpdateColumn(column.id, trimmed);
     setIsEditing(false);
   };
 
-  const submitCard = (event) => {
-    event.preventDefault();
-    const trimmed = cardTitle.trim();
-    if (!trimmed) {
-      return;
-    }
-    onAddCard(column.id, trimmed);
-    setCardTitle("");
-    setIsAddingCard(false);
-  };
 
-  const handleDragOver = (event) => {
+  // Card drag-over / drop
+  const handleCardDragOver = (event) => {
     event.preventDefault();
   };
 
-  const handleDrop = (event) => {
+  const handleCardDrop = (event) => {
     event.preventDefault();
     try {
       const payload = JSON.parse(event.dataTransfer.getData("application/json"));
@@ -53,9 +46,33 @@ export default function Column({
     }
   };
 
+  // Column drag
+  const handleColDragStart = (event) => {
+    // Don't start column drag when dragging a card
+    event.dataTransfer.effectAllowed = "move";
+    // Small timeout so the drag image is rendered before we set state
+    setTimeout(() => onColumnDragStart(columnIndex), 0);
+  };
+
   return (
-    <section className="column" onDragOver={handleDragOver} onDrop={handleDrop}>
+    <section
+      className={`column${isDragOver ? " column-drag-over" : ""}`}
+      draggable
+      onDragStart={handleColDragStart}
+      onDragOver={(e) => onColumnDragOver(e, columnIndex)}
+      onDrop={(e) => {
+        // Card drops: handled by card-list; column drops: handled here
+        const raw = e.dataTransfer.getData("application/json");
+        if (raw) {
+          handleCardDrop(e);
+        } else {
+          onColumnDrop(e, columnIndex);
+        }
+      }}
+      onDragEnd={onColumnDragEnd}
+    >
       <header className="column-header">
+        <div className="column-drag-handle" title="Drag to reorder">⠿</div>
         {isEditing ? (
           <form onSubmit={submitTitle} className="inline-form">
             <input
@@ -73,20 +90,14 @@ export default function Column({
         )}
         <div className="column-actions">
           {isEditing ? (
-            <button className="btn ghost" type="button" onClick={() => setIsEditing(false)}>
-              Done
-            </button>
+            <button className="btn ghost" type="button" onClick={() => setIsEditing(false)}>Done</button>
           ) : (
-            <button className="btn ghost" type="button" onClick={() => setIsEditing(true)}>
-              Edit
-            </button>
+            <button className="btn ghost" type="button" onClick={() => setIsEditing(true)}>Edit</button>
           )}
-          <button className="btn ghost" type="button" onClick={() => onDeleteColumn(column.id)}>
-            Delete
-          </button>
+          <button className="btn ghost" type="button" onClick={() => onDeleteColumn(column.id)}>Delete</button>
         </div>
       </header>
-      <div className="card-list">
+      <div className="card-list" onDragOver={handleCardDragOver} onDrop={handleCardDrop}>
         {column.cards.map((card) => (
           <Card
             key={card.id}
@@ -98,29 +109,9 @@ export default function Column({
           />
         ))}
       </div>
-      {isAddingCard ? (
-        <form onSubmit={submitCard} className="inline-form">
-          <input
-            type="text"
-            placeholder="Card title"
-            value={cardTitle}
-            onChange={(event) => setCardTitle(event.target.value)}
-            autoFocus
-          />
-          <div className="inline-actions">
-            <button className="btn primary" type="submit">
-              Add card
-            </button>
-            <button className="btn ghost" type="button" onClick={() => setIsAddingCard(false)}>
-              Cancel
-            </button>
-          </div>
-        </form>
-      ) : (
-        <button className="btn ghost" type="button" onClick={() => setIsAddingCard(true)}>
-          + Card
-        </button>
-      )}
+      <button className="btn ghost" type="button" onClick={() => onAddCard(column.id)}>
+        + Card
+      </button>
     </section>
   );
 }

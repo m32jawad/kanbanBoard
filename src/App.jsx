@@ -1,7 +1,7 @@
 import React, { useMemo, useState, useEffect } from "react";
 import Board from "./components/Board.jsx";
 import CardDetail from "./components/CardDetail.jsx";
-import { createInitialBoard, addColumn, updateColumn, deleteColumn } from "./store/boardStore.js";
+import { createInitialBoard, addColumn, updateColumn, deleteColumn, moveColumn } from "./store/boardStore.js";
 import { addCard, updateCard, deleteCard, moveCard } from "./store/boardStore.js";
 import { loadBoard, saveBoard } from "./store/api.js";
 
@@ -44,7 +44,13 @@ export default function App() {
     applyBoard(deleteColumn(board, columnId));
   };
 
-  const onAddCard = (columnId, title) => applyBoard(addCard(board, columnId, title));
+  const onMoveColumn = (fromIndex, toIndex) => applyBoard(moveColumn(board, fromIndex, toIndex));
+
+  const onAddCard = (columnId, title = "New Card") => {
+    const { board: next, cardId } = addCard(board, columnId, title);
+    applyBoard(next);
+    setActiveCardRef(cardId);
+  };
   const onUpdateCard = (columnId, cardId, payload) => applyBoard(updateCard(board, columnId, cardId, payload));
   const onDeleteCard = (columnId, cardId) => {
     if (activeCardEntry?.card.id === cardId) {
@@ -77,6 +83,7 @@ export default function App() {
         onAddColumn={onAddColumn}
         onUpdateColumn={onUpdateColumn}
         onDeleteColumn={onDeleteColumn}
+        onMoveColumn={onMoveColumn}
         onAddCard={onAddCard}
         onUpdateCard={onUpdateCard}
         onDeleteCard={onDeleteCard}

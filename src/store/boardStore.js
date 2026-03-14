@@ -1,4 +1,4 @@
-import { generateAccentColor, IMPORTANCE_COLORS } from "../utils/color.js";
+import { generateAccentColor, IMPORTANCE_COLORS, DEFAULT_ACCENT } from "../utils/color.js";
 
 const STORAGE_VERSION = 2;
 
@@ -58,27 +58,31 @@ export const deleteColumn = (board, columnId) => ({
   columns: board.columns.filter((column) => column.id !== columnId),
 });
 
-export const addCard = (board, columnId, title) => ({
-  ...board,
-  columns: board.columns.map((column) =>
-    column.id === columnId
-      ? {
-          ...column,
-          cards: [
-            ...column.cards,
-            {
-              id: createId(),
-              title,
-              description: "",
-              screenshots: [],
-              accent: generateAccentColor(title),
-              importance: null,
-            },
-          ],
-        }
-      : column
-  ),
-});
+export const addCard = (board, columnId, title) => {
+  const newId = createId();
+  const newBoard = {
+    ...board,
+    columns: board.columns.map((column) =>
+      column.id === columnId
+        ? {
+            ...column,
+            cards: [
+              ...column.cards,
+              {
+                id: newId,
+                title,
+                description: "",
+                screenshots: [],
+                accent: DEFAULT_ACCENT,
+                importance: null,
+              },
+            ],
+          }
+        : column
+    ),
+  };
+  return { board: newBoard, cardId: newId };
+};
 
 export const updateCard = (board, columnId, cardId, payload) => ({
   ...board,
@@ -92,10 +96,10 @@ export const updateCard = (board, columnId, cardId, payload) => ({
             const imp = merged.importance;
             if (imp && IMPORTANCE_COLORS[imp]) {
               merged.accent = IMPORTANCE_COLORS[imp];
+            } else if (!imp) {
+              merged.accent = DEFAULT_ACCENT;
             } else if (payload.accent) {
               merged.accent = payload.accent;
-            } else if (payload.title) {
-              merged.accent = generateAccentColor(payload.title);
             }
             return merged;
           }),
@@ -144,6 +148,14 @@ export const moveCard = (board, fromColumnId, toColumnId, cardId) => {
   );
 
   return { ...board, columns: injected };
+};
+
+export const moveColumn = (board, fromIndex, toIndex) => {
+  if (fromIndex === toIndex) return board;
+  const columns = [...board.columns];
+  const [moved] = columns.splice(fromIndex, 1);
+  columns.splice(toIndex, 0, moved);
+  return { ...board, columns };
 };
 
 export const isBoardValid = (board) =>
