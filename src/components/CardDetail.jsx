@@ -81,6 +81,25 @@ export default function CardDetail({ card, onClose, onUpdate }) {
               placeholder="Describe the task..."
             />
           </label>
+          <div className="field two-col-fields">
+            <label className="field compact">
+              Assignee
+              <input
+                type="text"
+                value={card.assignee || ""}
+                onChange={(event) => onUpdate({ assignee: event.target.value })}
+                placeholder="Who owns this task?"
+              />
+            </label>
+            <label className="field compact">
+              Due date
+              <input
+                type="date"
+                value={card.dueDate || ""}
+                onChange={(event) => onUpdate({ dueDate: event.target.value })}
+              />
+            </label>
+          </div>
           <label className="field">
             Importance
             <div className="importance-picker">

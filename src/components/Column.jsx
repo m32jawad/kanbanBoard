@@ -13,8 +13,6 @@ export default function Column({
 }) {
   const [isEditing, setIsEditing] = useState(false);
   const [draftTitle, setDraftTitle] = useState(column.title);
-  const [isAddingCard, setIsAddingCard] = useState(false);
-  const [cardTitle, setCardTitle] = useState("");
 
   const submitTitle = (event) => {
     event.preventDefault();
@@ -24,17 +22,6 @@ export default function Column({
     }
     onUpdateColumn(column.id, trimmed);
     setIsEditing(false);
-  };
-
-  const submitCard = (event) => {
-    event.preventDefault();
-    const trimmed = cardTitle.trim();
-    if (!trimmed) {
-      return;
-    }
-    onAddCard(column.id, trimmed);
-    setCardTitle("");
-    setIsAddingCard(false);
   };
 
   const handleDragOver = (event) => {
@@ -98,29 +85,9 @@ export default function Column({
           />
         ))}
       </div>
-      {isAddingCard ? (
-        <form onSubmit={submitCard} className="inline-form">
-          <input
-            type="text"
-            placeholder="Card title"
-            value={cardTitle}
-            onChange={(event) => setCardTitle(event.target.value)}
-            autoFocus
-          />
-          <div className="inline-actions">
-            <button className="btn primary" type="submit">
-              Add card
-            </button>
-            <button className="btn ghost" type="button" onClick={() => setIsAddingCard(false)}>
-              Cancel
-            </button>
-          </div>
-        </form>
-      ) : (
-        <button className="btn ghost" type="button" onClick={() => setIsAddingCard(true)}>
-          + Card
-        </button>
-      )}
+      <button className="btn ghost" type="button" onClick={() => onAddCard(column.id)}>
+        + Card
+      </button>
     </section>
   );
 }

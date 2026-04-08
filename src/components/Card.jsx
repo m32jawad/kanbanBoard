@@ -18,6 +18,12 @@ export default function Card({ card, columnId, onOpen, onDelete, onUpdate }) {
         <div className="card-accent" style={{ background: card.accent }} />
         <h3>{card.title}</h3>
         {card.description ? <p>{card.description.slice(0, 80)}</p> : null}
+        {(card.assignee || card.dueDate) && (
+          <div className="card-meta">
+            {card.assignee ? <span>Owner: {card.assignee}</span> : null}
+            {card.dueDate ? <span>Due: {card.dueDate}</span> : null}
+          </div>
+        )}
         <div className="card-pills">
           {card.importance ? (
             <span className="pill" style={{ background: card.accent + "33", color: card.accent }}>

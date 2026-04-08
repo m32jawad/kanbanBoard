@@ -4,6 +4,32 @@ const STORAGE_VERSION = 2;
 
 const createId = () => crypto.randomUUID();
 
+const normalizeImportance = (value) => {
+  if (value === "low" || value === "medium" || value === "high") {
+    return value;
+  }
+  return null;
+};
+
+const createCardPayload = (title, payload = {}) => {
+  const normalizedTitle = String(title || "").trim() || "Untitled Task";
+  const importance = normalizeImportance(payload.importance);
+  const accent = importance
+    ? IMPORTANCE_COLORS[importance]
+    : payload.accent || generateAccentColor(normalizedTitle);
+
+  return {
+    id: createId(),
+    title: normalizedTitle,
+    description: payload.description || "",
+    screenshots: Array.isArray(payload.screenshots) ? payload.screenshots : [],
+    accent,
+    importance,
+    assignee: payload.assignee || "",
+    dueDate: payload.dueDate || "",
+  };
+};
+
 export const createInitialBoard = () => ({
   version: STORAGE_VERSION,
   columns: [
@@ -11,14 +37,9 @@ export const createInitialBoard = () => ({
       id: createId(),
       title: "Ideas",
       cards: [
-        {
-          id: createId(),
-          title: "Landing Page",
+        createCardPayload("Landing Page", {
           description: "First sketches for hero and CTA",
-          screenshots: [],
-          accent: generateAccentColor("Landing Page"),
-          importance: null,
-        },
+        }),
       ],
     },
     {
@@ -64,17 +85,19 @@ export const addCard = (board, columnId, title) => ({
     column.id === columnId
       ? {
           ...column,
-          cards: [
-            ...column.cards,
-            {
-              id: createId(),
-              title,
-              description: "",
-              screenshots: [],
-              accent: generateAccentColor(title),
-              importance: null,
-            },
-          ],
+          cards: [...column.cards, createCardPayload(title)],
+        }
+      : column
+  ),
+});
+
+export const addTask = (board, columnId, payload) => ({
+  ...board,
+  columns: board.columns.map((column) =>
+    column.id === columnId
+      ? {
+          ...column,
+          cards: [...column.cards, createCardPayload(payload.title, payload)],
         }
       : column
   ),
@@ -89,7 +112,8 @@ export const updateCard = (board, columnId, cardId, payload) => ({
           cards: column.cards.map((card) => {
             if (card.id !== cardId) return card;
             const merged = { ...card, ...payload };
-            const imp = merged.importance;
+            const imp = normalizeImportance(merged.importance);
+            merged.importance = imp;
             if (imp && IMPORTANCE_COLORS[imp]) {
               merged.accent = IMPORTANCE_COLORS[imp];
             } else if (payload.accent) {
@@ -144,6 +168,49 @@ export const moveCard = (board, fromColumnId, toColumnId, cardId) => {
   );
 
   return { ...board, columns: injected };
+};
+
+export const importTasks = (board, tasks, options = {}) => {
+  const importMode = options.mode || "append";
+  const fallbackColumnId = board.columns[0]?.id;
+  if (!fallbackColumnId || !Array.isArray(tasks) || !tasks.length) {
+    return board;
+  }
+
+  const nextBoard =
+    importMode === "replace"
+      ? {
+          ...board,
+          columns: board.columns.map((column) => ({ ...column, cards: [] })),
+        }
+      : { ...board, columns: board.columns.map((column) => ({ ...column, cards: [...column.cards] })) };
+
+  const targetColumnByTitle = new Map(
+    nextBoard.columns.map((column) => [column.title.trim().toLowerCase(), column.id])
+  );
+
+  tasks.forEach((task) => {
+    const targetId =
+      targetColumnByTitle.get(String(task.column || "").trim().toLowerCase()) || fallbackColumnId;
+    const columnIndex = nextBoard.columns.findIndex((column) => column.id === targetId);
+    if (columnIndex < 0) {
+      return;
+    }
+
+    const createdCard = createCardPayload(task.title, {
+      description: task.description,
+      importance: task.importance,
+      assignee: task.assignee,
+      dueDate: task.dueDate,
+    });
+
+    nextBoard.columns[columnIndex] = {
+      ...nextBoard.columns[columnIndex],
+      cards: [...nextBoard.columns[columnIndex].cards, createdCard],
+    };
+  });
+
+  return nextBoard;
 };
 
 export const isBoardValid = (board) =>
