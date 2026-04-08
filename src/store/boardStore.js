@@ -79,6 +79,23 @@ export const deleteColumn = (board, columnId) => ({
   columns: board.columns.filter((column) => column.id !== columnId),
 });
 
+export const moveColumn = (board, fromIndex, toIndex) => {
+  if (
+    fromIndex === toIndex ||
+    fromIndex < 0 ||
+    toIndex < 0 ||
+    fromIndex >= board.columns.length ||
+    toIndex >= board.columns.length
+  ) {
+    return board;
+  }
+
+  const columns = [...board.columns];
+  const [moved] = columns.splice(fromIndex, 1);
+  columns.splice(toIndex, 0, moved);
+  return { ...board, columns };
+};
+
 export const addCard = (board, columnId, title) => ({
   ...board,
   columns: board.columns.map((column) =>

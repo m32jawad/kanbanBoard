@@ -28,7 +28,7 @@ export default function Column({
     setIsEditing(false);
   };
 
-  const handleDragOver = (event) => {
+  const handleCardDragOver = (event) => {
     event.preventDefault();
   };
 
@@ -107,9 +107,6 @@ export default function Column({
           />
         ))}
       </div>
-      <button className="btn ghost" type="button" onClick={() => onAddCard(column.id)}>
-        + Card
-      </button>
       <button className="btn ghost" type="button" onClick={() => onAddCard(column.id)}>
         + Card
       </button>

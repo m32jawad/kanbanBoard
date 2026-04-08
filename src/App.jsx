@@ -6,7 +6,7 @@ import ImportTasksModal from "./components/ImportTasksModal.jsx";
 import AddTaskModal from "./components/AddTaskModal.jsx";
 import TaskManagementPlan from "./components/TaskManagementPlan.jsx";
 import { createInitialBoard, addColumn, updateColumn, deleteColumn } from "./store/boardStore.js";
-import { addCard, updateCard, deleteCard, moveCard } from "./store/boardStore.js";
+import { updateCard, deleteCard, moveCard, moveColumn } from "./store/boardStore.js";
 import { importTasks } from "./store/boardStore.js";
 import { addTask } from "./store/boardStore.js";
 import { loadBoard, saveBoard } from "./store/api.js";
@@ -18,6 +18,7 @@ export default function App() {
   const [loading, setLoading] = useState(true);
   const [viewMode, setViewMode] = useState("board");
   const [showImportModal, setShowImportModal] = useState(false);
+  const [importModalMode, setImportModalMode] = useState("json");
   const [showAddTaskModal, setShowAddTaskModal] = useState(false);
   const [addTaskColumnId, setAddTaskColumnId] = useState("");
   const [importError, setImportError] = useState("");
@@ -49,6 +50,7 @@ export default function App() {
 
   const onAddColumn = (title) => applyBoard(addColumn(board, title));
   const onUpdateColumn = (columnId, title) => applyBoard(updateColumn(board, columnId, title));
+  const onMoveColumn = (fromIndex, toIndex) => applyBoard(moveColumn(board, fromIndex, toIndex));
   const onDeleteColumn = (columnId) => {
     if (activeCardEntry?.columnId === columnId) {
       setActiveCardRef(null);
@@ -152,8 +154,25 @@ export default function App() {
               List View
             </button>
           </div>
-          <button className="btn" type="button" onClick={() => setShowImportModal(true)}>
+          <button
+            className="btn"
+            type="button"
+            onClick={() => {
+              setImportModalMode("json");
+              setShowImportModal(true);
+            }}
+          >
             Import Tasks
+          </button>
+          <button
+            className="btn"
+            type="button"
+            onClick={() => {
+              setImportModalMode("smart");
+              setShowImportModal(true);
+            }}
+          >
+            AI Task Extractor
           </button>
           <button className="btn primary" type="button" onClick={() => setShowAddTaskModal(true)}>
             Add Task
@@ -169,6 +188,7 @@ export default function App() {
           onUpdateColumn={onUpdateColumn}
           onDeleteColumn={onDeleteColumn}
           onAddCard={onAddCard}
+          onMoveColumn={onMoveColumn}
           onUpdateCard={onUpdateCard}
           onDeleteCard={onDeleteCard}
           onMoveCard={onMoveCard}
@@ -187,6 +207,7 @@ export default function App() {
       {showImportModal ? (
         <ImportTasksModal
           columns={board.columns}
+          initialMode={importModalMode}
           onClose={() => setShowImportModal(false)}
           onImport={handleImport}
           onCreateTasks={handleCreateExtractedTasks}

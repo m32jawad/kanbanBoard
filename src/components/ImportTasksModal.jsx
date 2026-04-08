@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { extractTasksWithGemini } from "../utils/smartExtract.js";
 
 const CSV_TEMPLATE = "title,column,assignee,dueDate,importance,description\nDesign homepage,Ideas,Ana,2026-04-22,high,Create wireframes";
@@ -12,8 +12,8 @@ const findDefaultTodoColumnId = (columns) => {
   return todo?.id || columns[0]?.id || "";
 };
 
-export default function ImportTasksModal({ columns, onClose, onImport, onCreateTasks }) {
-  const [mode, setMode] = useState("json");
+export default function ImportTasksModal({ columns, initialMode = "json", onClose, onImport, onCreateTasks }) {
+  const [mode, setMode] = useState(initialMode);
   const [replaceMode, setReplaceMode] = useState(false);
   const [payload, setPayload] = useState("");
   const [apiKey, setApiKey] = useState(import.meta.env.VITE_GEMINI_API_KEY || "");
@@ -23,6 +23,10 @@ export default function ImportTasksModal({ columns, onClose, onImport, onCreateT
   const [draftTasks, setDraftTasks] = useState([]);
 
   const defaultTodoColumnId = useMemo(() => findDefaultTodoColumnId(columns), [columns]);
+
+  useEffect(() => {
+    setMode(initialMode);
+  }, [initialMode]);
 
   const handleSubmit = (event) => {
     event.preventDefault();

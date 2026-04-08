@@ -122,95 +122,97 @@ export default function CardDetail({ card, onClose, onUpdate }) {
   }, []);
 
   return (
-    <div className="modal" role="dialog" aria-modal="true" onClick={handleBackdrop}>
-      <div className="modal-content" ref={dialogRef}>
-        <header className="modal-header">
-          <div>
-            <p className="eyebrow">Card</p>
-            <h2>{card.title}</h2>
-          </div>
-          <button className="btn ghost" type="button" onClick={onClose}>
-            Close
-          </button>
-        </header>
-        <section className="modal-body">
-          <label className="field">
-            Title
-            <input
-              type="text"
-              value={card.title}
-              onChange={(event) => onUpdate({ title: event.target.value })}
-            />
-          </label>
-          <label className="field">
-            Notes
-            <textarea
-              rows={6}
-              value={card.description}
-              onChange={(event) => onUpdate({ description: event.target.value })}
-              placeholder="Describe the task..."
-            />
-          </label>
-          <div className="field two-col-fields">
-            <label className="field compact">
-              Assignee
+    <>
+      <div className="modal" role="dialog" aria-modal="true" onClick={handleBackdrop}>
+        <div className="modal-content" ref={dialogRef} tabIndex={-1} onPaste={handlePaste}>
+          <header className="modal-header">
+            <div>
+              <p className="eyebrow">Card</p>
+              <h2>{card.title}</h2>
+            </div>
+            <button className="btn ghost" type="button" onClick={onClose}>
+              Close
+            </button>
+          </header>
+          <section className="modal-body">
+            <label className="field">
+              Title
               <input
                 type="text"
-                value={card.assignee || ""}
-                onChange={(event) => onUpdate({ assignee: event.target.value })}
-                placeholder="Who owns this task?"
+                value={card.title}
+                onChange={(event) => onUpdate({ title: event.target.value })}
               />
             </label>
-            <label className="field compact">
-              Due date
-              <input
-                type="date"
-                value={card.dueDate || ""}
-                onChange={(event) => onUpdate({ dueDate: event.target.value })}
+            <label className="field">
+              Notes
+              <textarea
+                rows={6}
+                value={card.description}
+                onChange={(event) => onUpdate({ description: event.target.value })}
+                placeholder="Describe the task..."
               />
             </label>
-          </div>
-          <label className="field">
-            Importance
-            <div className="importance-picker">
-              {IMPORTANCE_OPTIONS.map((opt) => (
-                <button
-                  key={opt.value}
-                  type="button"
-                  className={`btn importance-btn ${card.importance === opt.value || (!card.importance && opt.value === "") ? "active" : ""}`}
-                  data-importance={opt.value}
-                  onClick={() => onUpdate({ importance: opt.value || null })}
-                >
-                  {opt.label}
-                </button>
-              ))}
+            <div className="field two-col-fields">
+              <label className="field compact">
+                Assignee
+                <input
+                  type="text"
+                  value={card.assignee || ""}
+                  onChange={(event) => onUpdate({ assignee: event.target.value })}
+                  placeholder="Who owns this task?"
+                />
+              </label>
+              <label className="field compact">
+                Due date
+                <input
+                  type="date"
+                  value={card.dueDate || ""}
+                  onChange={(event) => onUpdate({ dueDate: event.target.value })}
+                />
+              </label>
             </div>
-          </label>
-          <div className="field">
-            <div className="field-label">Screenshots</div>
-            <div className="uploader">
-              <input type="file" accept="image/*" multiple onChange={handleUpload} />
-              <p>Files are stored locally in your browser.</p>
-            </div>
-            {screenshotItems.length ? (
-              <div className="screenshot-scroll">
-                <div className="screenshot-grid">
-                  {screenshotItems.map((shot, index) => (
-                    <div key={shot.id} className="screenshot-item">
-                      <img src={shot.src} alt="Screenshot" />
-                      <button
-                        className="thumb-remove"
-                        type="button"
-                        onClick={() => handleRemoveScreenshot(shot.index)}
-                        title="Remove"
-                      >
-                        ✕
-                      </button>
-                    </div>
-                  ))}
+            <label className="field">
+              Importance
+              <div className="importance-picker">
+                {IMPORTANCE_OPTIONS.map((opt) => (
+                  <button
+                    key={opt.value}
+                    type="button"
+                    className={`btn importance-btn ${card.importance === opt.value || (!card.importance && opt.value === "") ? "active" : ""}`}
+                    data-importance={opt.value}
+                    onClick={() => onUpdate({ importance: opt.value || null })}
+                  >
+                    {opt.label}
+                  </button>
+                ))}
+              </div>
+            </label>
+            <div className="field">
+              <div className="field-label">Screenshots</div>
+              <div className="uploader">
+                <input type="file" accept="image/*" multiple onChange={handleUpload} />
+                <p>Files are stored locally in your browser.</p>
+              </div>
+              {screenshotItems.length ? (
+                <div className="screenshot-scroll">
+                  <div className="screenshot-grid">
+                    {screenshotItems.map((shot, index) => (
+                      <div key={shot.id} className="screenshot-item">
+                        <img src={shot.src} alt="Screenshot" />
+                        <button
+                          className="thumb-remove"
+                          type="button"
+                          onClick={() => handleRemoveScreenshot(shot.index)}
+                          title="Remove"
+                        >
+                          ✕
+                        </button>
+                      </div>
+                    ))}
+                  </div>
                 </div>
               ) : (
-                <div className="empty">No screenshots yet — upload or paste an image</div>
+                <div className="empty">No screenshots yet - upload or paste an image</div>
               )}
             </div>
           </section>
