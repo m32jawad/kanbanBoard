@@ -1,4 +1,4 @@
-import { generateAccentColor, IMPORTANCE_COLORS } from "../utils/color.js";
+import { generateAccentColor, IMPORTANCE_COLORS, DEFAULT_ACCENT } from "../utils/color.js";
 
 const STORAGE_VERSION = 2;
 
@@ -116,10 +116,10 @@ export const updateCard = (board, columnId, cardId, payload) => ({
             merged.importance = imp;
             if (imp && IMPORTANCE_COLORS[imp]) {
               merged.accent = IMPORTANCE_COLORS[imp];
+            } else if (!imp) {
+              merged.accent = DEFAULT_ACCENT;
             } else if (payload.accent) {
               merged.accent = payload.accent;
-            } else if (payload.title) {
-              merged.accent = generateAccentColor(payload.title);
             }
             return merged;
           }),

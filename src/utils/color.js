@@ -9,6 +9,8 @@ const hashString = (text) => {
   return Math.abs(hash);
 };
 
+export const DEFAULT_ACCENT = "hsl(220 10% 45%)"; // neutral grey
+
 export const IMPORTANCE_COLORS = {
   low: "hsl(142 60% 45%)",
   medium: "hsl(45 90% 50%)",
